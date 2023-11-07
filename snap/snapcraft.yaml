@@ -1,6 +1,6 @@
 name: zwavejs2mqtt
 base: core20
-version: 'v7.2.0'
+adopt-info: zwavejs2mqtt
 summary: Fully configurable Zwave to MQTT Gateway and Control Panel.
 description: |
   ** Fully configurable Zwave to MQTT Gateway and Control Panel**
@@ -104,16 +104,18 @@ parts:
     after: [nodejs, dependencies]
     plugin: dump
     source: https://github.com/zwave-js/zwave-js-ui.git
-    #source-branch: "master"
-    #source-tag: "v7.1.0"
-    source-tag: $SNAPCRAFT_PROJECT_VERSION
     build-packages:
       - gcc
       - build-essential
-
+      
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"
+      
     build-environment:
       - LD_LIBRARY_PATH: "${LD_LIBRARY_PATH}:$(dirname $(find ${SNAPCRAFT_STAGE} -name libonig.so.2 -print0))"
       - PATH: "${PATH}:${SNAPCRAFT_PART_BUILD}/bin"
+      
     override-build: |
       # Used when testing an unreleased version of Z-wavejs
       # sed -i 's/"zwave-js".*$/"zwave-js"\: "10.0.5-0-pr-4836-ed10b36"/g' ${SNAPCRAFT_PART_BUILD}/package.json
@@ -147,7 +149,7 @@ parts:
       mkdir "${SNAPCRAFT_PART_INSTALL}/bin" \
         && cd "${SNAPCRAFT_PART_INSTALL}/bin" \
         && ln -s "../lib/zwavejs2mqtt/bin/yarn" "yarn"
-
+  
     filesets:
       zwavejs2mqtt-include:
         - bin
